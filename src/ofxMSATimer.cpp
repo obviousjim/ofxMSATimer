@@ -1,8 +1,7 @@
 /***********************************************************************
  
  Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
- *** The Mega Super Awesome Visuals Company ***
- * All rights reserved.
+ * Adapted for Windows by Juan Pablo Manson
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -34,9 +33,15 @@
 ofxMSATimer msaTimer;
 
 ofxMSATimer::ofxMSATimer() {
-	mach_timebase_info(&info); 
-	machMultiplier = info.numer / 1000000000.0 / info.denom;
-	machStartime = mach_absolute_time();
+	#if defined(_MSC_VER)
+		machMultiplier = 1/1000.0;
+		machStartime = machAbsoluteTime();
+		initialize();
+	#else
+		mach_timebase_info(&info); 
+		machMultiplier = info.numer / 1000000000.0 / info.denom;
+		machStartime = mach_absolute_time();
+	#endif	
     startTime = lastCallTime = appStartTime = machStartime * machMultiplier;
     
 }

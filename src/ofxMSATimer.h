@@ -1,8 +1,7 @@
 /***********************************************************************
  
  Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
- *** The Mega Super Awesome Visuals Company ***
- * All rights reserved.
+ * Adapted for Windows by Juan Pablo Manson
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -31,20 +30,50 @@
 
 #pragma once
 
-#include <mach/mach_time.h>
-
+#if defined(_MSC_VER)
+	#define NOMINMAX
+	#include <windows.h>
+#else
+	#include <sys/time.h>
+	#include <mach/mach_time.h>
+#endif
+#include "stdio.h"
+#include "stdint.h"
 
 class ofxMSATimer {
 public:
 	ofxMSATimer();
 	
 	inline double getTotalTime();			// elapsed seconds since beginning of time
+	inline uint64_t getMachAbsoluteTime();	// elapsed machine time since beginning of time	(platform dependent)
 	inline double getAppTime();				// elapsed seconds since start of app
 	inline uint64_t getAppTimeMillis(); 	// elapsed millis since start of app
 	inline double getTimeSinceLastCall();	// elapsed seconds since last time this function was called
-    
+    inline void initialize();
 	inline void setStartTime();			
 	inline double getElapsedTime();			// elapsed seconds since you called setStartTime()
+
+	#if defined(_MSC_VER)
+		void start() {
+				QueryPerformanceCounter(&startTimeW);
+		}
+		void stop() {
+				QueryPerformanceCounter(&stopTime);
+		}
+		double getSeconds() {
+				return (double) elapsed() / ticksPerSecond.QuadPart;
+		}
+		double getMilliseconds() {
+				return ((double) elapsed() * 1000) / ticksPerSecond.QuadPart;
+		}
+		double getMicroseconds() {
+				return ((double) elapsed() * 1000000) / ticksPerSecond.QuadPart;
+		}
+		double getNanoseconds() {
+				return ((double) elapsed() * 1000000000) / ticksPerSecond.QuadPart;
+		}
+	
+	#endif
 	
 protected:
 	double machMultiplier;
@@ -53,35 +82,90 @@ protected:
 	double startTime;
     uint64_t startMillis;
     uint64_t machStartime;
-    mach_timebase_info_data_t info;
+	#if defined(_MSC_VER)
+	#else
+		mach_timebase_info_data_t info;
+	#endif
+private:
+	#if defined(_MSC_VER)
+		LARGE_INTEGER ticksPerSecond;
+        LARGE_INTEGER startTimeW, lastCallTimeW, stopTime;
+		LONGLONG elapsed() {
+			return stopTime.QuadPart - startTimeW.QuadPart;
+		}
+	#endif
+
+	uint64_t machAbsoluteTime() { //return nanos
+		#if defined(_MSC_VER)
+			return GetTickCount(); 
+		#else
+			return mach_absolute_time(); //return nanos
+		#endif
+	}
 };
 
 extern ofxMSATimer msaTimer;
 
 inline uint64_t ofxMSATimer::getAppTimeMillis() {
-    /* no float conversion here */
-	return (mach_absolute_time() - machStartime) * info.numer / (info.denom * 1000000);
+	#if defined(_MSC_VER)
+		return (machAbsoluteTime() - machStartime);  
+	#else
+		/* no float conversion here */
+		return (machAbsoluteTime() - machStartime) * info.numer / (info.denom * 1000000);
+	#endif    
 }
 
 inline double ofxMSATimer::getTotalTime() {
-	return mach_absolute_time() * machMultiplier;
+	return machAbsoluteTime() * machMultiplier;
+}
+
+inline uint64_t ofxMSATimer::getMachAbsoluteTime() {
+	return machAbsoluteTime();
 }
 
 inline double ofxMSATimer::getAppTime() {
-	return mach_absolute_time() * machMultiplier - appStartTime;
+	return machAbsoluteTime() * machMultiplier - appStartTime;
 }
 
-inline double ofxMSATimer::getTimeSinceLastCall() {
-	float nowTime = mach_absolute_time() * machMultiplier;
-	float diff = nowTime - lastCallTime;
-	lastCallTime = nowTime;
-	return diff;
+inline double ofxMSATimer::getTimeSinceLastCall() { 
+	#if defined(_MSC_VER)
+		LARGE_INTEGER lastCall = lastCallTimeW;
+		QueryPerformanceCounter(&lastCallTimeW);
+		return (double) (lastCallTimeW.QuadPart - lastCall.QuadPart) / ticksPerSecond.QuadPart;
+	#else
+		float nowTime = machAbsoluteTime() * machMultiplier;
+		float diff = nowTime - lastCallTime;
+		lastCallTime = nowTime;
+		return diff;
+	#endif
 }
 
 inline void ofxMSATimer::setStartTime() {
-	startTime = mach_absolute_time() * machMultiplier;
+	#if defined(_MSC_VER)
+        start();
+        stopTime = startTimeW;
+		QueryPerformanceCounter(&startTimeW);
+	#else
+		startTime = machAbsoluteTime() * machMultiplier;
+	#endif
+}
+
+inline void ofxMSATimer::initialize() {
+	#if defined(_MSC_VER)
+		QueryPerformanceFrequency(&ticksPerSecond);
+		QueryPerformanceCounter(&lastCallTimeW);
+	#else
+	#endif
 }
 
 inline double ofxMSATimer::getElapsedTime() {
-	return mach_absolute_time() * machMultiplier - startTime;
+	#if defined(_MSC_VER)
+		QueryPerformanceCounter(&stopTime);
+		return getSeconds();
+	#else
+		return machAbsoluteTime() * machMultiplier - startTime;
+	#endif
 }
+
+
+

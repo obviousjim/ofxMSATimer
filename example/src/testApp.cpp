@@ -2,7 +2,7 @@
 
 //--------------------------------------------------------------
 void testApp::setup(){
-	ofSetFrameRate(30);
+	ofSetFrameRate(60);
 
 	ofBackground(0,0,0);
 	TTF.loadFont("mono.ttf", 7);
@@ -18,26 +18,23 @@ void testApp::draw(){
 
 	ofSetColor(240, 240, 240);
 
-	message = "ofxMSATimer.getAppTime(): " + ofToString(ofMSATimer.getAppTime()) + " sec";
+	message = "ofxMSATimer.getAppTime(): " + ofToString(timer.getAppTimeSeconds()) + " sec";
 	TTF.drawString(message, 100, 120);
 
-	message = "ofxMSATimer.getMachAbsoluteTime(): " + ofToString(ofMSATimer.getMachAbsoluteTime()) + " ns";
-	TTF.drawString(message, 100, 140);
-
-	double elapsedTimeSec = ofMSATimer.getElapsedTime();
+	double elapsedTimeSec = timer.getElapsedSeconds();
 	message = "ofxMSATimer.getElapsedTime(): " + ofToString(elapsedTimeSec*1000) + " ms"; //To millis
 	TTF.drawString(message, 100, 160);
 
-	message = "ofxMSATimer.getAppTimeMillis(): " + ofToString(ofMSATimer.getAppTimeMillis()) + " ms";
+	message = "ofxMSATimer.getAppTimeMillis(): " + ofToString(timer.getAppTimeMillis()) + " ms";
 	TTF.drawString(message, 100, 180);
 
-	message = "ofxMSATimer.getTimeSinceLastCall(): " + ofToString(ofMSATimer.getTimeSinceLastCall()) + " sec";
+	message = "ofxMSATimer.getTimeSinceLastCall(): " + ofToString(timer.getSecondsSinceLastCall()) + " sec";
 	TTF.drawString(message, 100, 200);
 
 	message = "FPS: " + ofToString(1/elapsedTimeSec);
 	TTF.drawString(message, 100, 100);
 
-	ofMSATimer.setStartTime();
+	timer.setStartTime();
 }
 
 //--------------------------------------------------------------

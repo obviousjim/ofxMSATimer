@@ -1,7 +1,6 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxSystemTime.h"
 #include "ofxMSATimer.h"
 
 class testApp : public ofBaseApp{
@@ -22,5 +21,5 @@ class testApp : public ofBaseApp{
 
 		string message;
 		ofTrueTypeFont TTF;
-		ofxMSATimer ofMSATimer;
+		ofxMSATimer timer;
 };

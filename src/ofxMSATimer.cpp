@@ -2,6 +2,7 @@
  
  Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
  * Adapted for Windows by Juan Pablo Manson
+ * Cross platform architecture and convenience fucntions by James George
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -47,14 +48,13 @@ uint64_t ofxMSATimer::getAppTimeMicros(){
 
 ofxMSATimer::ofxMSATimer(){
     QueryPerformanceFrequency(&ticksPerSecond);
-    QueryPerformanceCounter(&stopTime);
     QueryPerformanceCounter(&startTime);
     getMicrosSinceLastCall();
 }
 
 uint64_t ofxMSATimer::getAppTimeMicros(){
     QueryPerformanceCounter(&stopTime);
-	return ((stopTime.QuadPart - startTimeW.QuadPart) * 1000000) / ticksPerSecond.QuadPart;
+	return ((stopTime.QuadPart - startTime.QuadPart) * 1000000) / ticksPerSecond.QuadPart;
 }
 
 #elif defined(TARGET_LINUX)
@@ -68,7 +68,6 @@ uint64_t ofxMSATimer::getAppTimeMicros(){
 }
 
 #endif
-
 
 float ofxMSATimer::getAppTimeSeconds(){
     return getAppTimeMicros() / 1000000.0;
@@ -107,21 +106,3 @@ uint64_t ofxMSATimer::getElapsedMicros(){
 void ofxMSATimer::setStartTime(){
     timerStartTimeMicros = getAppTimeMicros();
 }
-
-/*
-ofxMSATimer msaTimer;
-
-ofxMSATimer::ofxMSATimer() {
-	#if defined(_MSC_VER)
-		machMultiplier = 1/1000.0;
-		machStartime = machAbsoluteTime();
-		initialize();
-	#else
-		mach_timebase_info(&info); 
-		machMultiplier = info.numer / 1000000000.0 / info.denom;
-		machStartime = mach_absolute_time();
-	#endif	
-    startTime = lastCallTime = appStartTime = machStartime * machMultiplier;
-    
-}
-*/

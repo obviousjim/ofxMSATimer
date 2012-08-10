@@ -1,9 +1,11 @@
-ofxMSATimer
-===========
+# ofxMSATimer
 
-Memo Atken's precise timer class from MSALibs but with Windows support
+Precise timer class from MSALibs now with OS X, Linux, and Windows support
 
-Uses Windows API QueryPerformanceCounter: 
-http://msdn.microsoft.com/en-us/library/windows/desktop/ms644905(v=vs.85).aspx
+This class provides a microsecond accurate no-drift timer with better resolution and consistency than the built in ofGetEllapsedTimef() 
 
-QueryPerformanceCounter retrieves the frequency of the high-resolution performance counter, if one exists. If the installed hardware supports a high-resolution performance counter, the return value is nonzero.
+Contributors:
+Memo Atken
+James George
+Philip Whitfield
+Juan Pablo Manson

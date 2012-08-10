@@ -78,10 +78,9 @@ timespec diff(timespec& start, timespec& end)
 }
 
 uint64_t ofxMSATimer::getAppTimeMicros(){
-	timespec time;
-	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
-	timespec diffTime = diff(startTime, time);
-	return (diffTime.tv_sec * 1000000 + diffTime.tv_nsec / 1000.)*100;
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &tmpTime);
+	timespec diffTime = diff(startTime, tmpTime);
+	return  ((int64_t)diffTime.tv_sec*1000000000 + (int64_t)diffTime.tv_nsec)/1000;
 }
 
 #endif

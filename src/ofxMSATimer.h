@@ -77,6 +77,7 @@ protected:
     uint64_t machStartTime; //nanos
 	#elif defined(TARGET_LINUX)
     struct timespec startTime;
+    struct timespec tmpTime;
 	#endif
     
 };

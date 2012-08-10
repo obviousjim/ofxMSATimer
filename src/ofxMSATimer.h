@@ -30,16 +30,55 @@
 
 #pragma once
 
-#if defined(_MSC_VER)
+#include "ofMain.h"
+
+#if defined(TARGET_WIN32)
 	#define NOMINMAX
 	#include <windows.h>
-#else
+#elif defined(TARGET_OSX)
 	#include <sys/time.h>
 	#include <mach/mach_time.h>
+#elif defined(TARGET_LINUX)
+	//TODO:
 #endif
+
 #include "stdio.h"
 #include "stdint.h"
 
+class ofxMSATimer {
+  public:
+    ofxMSATimer();
+    
+	float getAppTimeSeconds();
+	uint32_t getAppTimeMillis();
+	uint64_t getAppTimeMicros();
+    
+	void setStartTime();
+	float getElapsedSeconds();
+	uint32_t getElapsedMillis();
+	uint64_t getElapsedMicros();
+	
+	float getSecondsSinceLastCall();
+	uint32_t getMillisSinceLastCall();
+	uint64_t getMicrosSinceLastCall();
+	
+protected:
+    
+	uint64_t timerStartTimeMicros;
+    uint64_t lastCallTimeMicros;
+    
+	#if defined(TARGET_WIN32)
+    LARGE_INTEGER ticksPerSecond;
+    LARGE_INTEGER startTime, stopTime;
+	#elif defined(TARGET_OSX)
+    mach_timebase_info_data_t info;
+    uint64_t machStartTime; //nanos
+	#elif defined(TARGET_LINUX)
+	//TODO:
+	#endif
+    
+};
+/*
 class ofxMSATimer {
 public:
 	ofxMSATimer();
@@ -94,7 +133,7 @@ private:
 			return stopTime.QuadPart - startTimeW.QuadPart;
 		}
 	#endif
-
+ 	
 	uint64_t machAbsoluteTime() { //return nanos
 		#if defined(_MSC_VER)
 			return GetTickCount(); 
@@ -110,7 +149,6 @@ inline uint64_t ofxMSATimer::getAppTimeMillis() {
 	#if defined(_MSC_VER)
 		return (machAbsoluteTime() - machStartime);  
 	#else
-		/* no float conversion here */
 		return (machAbsoluteTime() - machStartime) * info.numer / (info.denom * 1000000);
 	#endif    
 }
@@ -167,5 +205,5 @@ inline double ofxMSATimer::getElapsedTime() {
 	#endif
 }
 
-
+*/
 

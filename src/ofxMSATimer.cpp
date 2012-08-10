@@ -30,6 +30,85 @@
 
 #include "ofxMSATimer.h"
 
+
+#if defined(TARGET_OSX)
+
+ofxMSATimer::ofxMSATimer(){
+    mach_timebase_info(&info);    
+    machStartTime = mach_absolute_time();
+    getMicrosSinceLastCall();
+}
+
+uint64_t ofxMSATimer::getAppTimeMicros(){
+	return (mach_absolute_time() - machStartTime) * info.numer / (info.denom * 1000);	
+}
+
+#elif defined(TARGET_WIN32)
+
+ofxMSATimer::ofxMSATimer(){
+    QueryPerformanceFrequency(&ticksPerSecond);
+    QueryPerformanceCounter(&stopTime);
+    QueryPerformanceCounter(&startTime);
+    getMicrosSinceLastCall();
+}
+
+uint64_t ofxMSATimer::getAppTimeMicros(){
+    QueryPerformanceCounter(&stopTime);
+	return ((stopTime.QuadPart - startTimeW.QuadPart) * 1000000) / ticksPerSecond.QuadPart;
+}
+
+#elif defined(TARGET_LINUX)
+
+ofxMSATimer::ofxMSATimer(){
+    
+}
+
+uint64_t ofxMSATimer::getAppTimeMicros(){
+
+}
+
+#endif
+
+
+float ofxMSATimer::getAppTimeSeconds(){
+    return getAppTimeMicros() / 1000000.0;
+}
+
+uint32_t ofxMSATimer::getAppTimeMillis(){
+    return getAppTimeMicros() / 1000;
+}
+
+float ofxMSATimer::getElapsedSeconds(){
+	return getElapsedMicros() / 1000000.0;
+}
+
+uint32_t ofxMSATimer::getElapsedMillis(){
+    return getElapsedMicros() / 1000;
+}
+
+float ofxMSATimer::getSecondsSinceLastCall(){
+    return getMicrosSinceLastCall() / 1000000.0;
+}
+
+uint32_t ofxMSATimer::getMillisSinceLastCall(){
+    return getMicrosSinceLastCall() / 1000;
+}
+
+uint64_t ofxMSATimer::getMicrosSinceLastCall(){
+    uint64_t ret = getAppTimeMicros() - lastCallTimeMicros;
+    lastCallTimeMicros = getAppTimeMicros();
+    return ret;
+}
+
+uint64_t ofxMSATimer::getElapsedMicros(){
+    return getAppTimeMicros() - timerStartTimeMicros;
+}
+
+void ofxMSATimer::setStartTime(){
+    timerStartTimeMicros = getAppTimeMicros();
+}
+
+/*
 ofxMSATimer msaTimer;
 
 ofxMSATimer::ofxMSATimer() {
@@ -45,3 +124,4 @@ ofxMSATimer::ofxMSATimer() {
     startTime = lastCallTime = appStartTime = machStartime * machMultiplier;
     
 }
+*/

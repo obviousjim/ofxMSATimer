@@ -60,11 +60,20 @@ uint64_t ofxMSATimer::getAppTimeMicros(){
 #elif defined(TARGET_LINUX)
 
 ofxMSATimer::ofxMSATimer(){
-    
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &startTime);
+	getMicrosSinceLastCall();
+}
+
+int64_t timespecDiff(struct timespec *timeA_p, struct timespec *timeB_p)
+{
+  return ((timeA_p->tv_sec * 1000000000) + timeA_p->tv_nsec) -
+           ((timeB_p->tv_sec * 1000000000) + timeB_p->tv_nsec);
 }
 
 uint64_t ofxMSATimer::getAppTimeMicros(){
-
+	timespec time;
+	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
+	return timespecDiff(&time, &startTime) / 100;
 }
 
 #endif

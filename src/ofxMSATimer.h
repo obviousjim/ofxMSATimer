@@ -40,7 +40,8 @@
 	#include <sys/time.h>
 	#include <mach/mach_time.h>
 #elif defined(TARGET_LINUX)
-	//TODO:
+	#include "time.h"
+	#include <inttypes.h>
 #endif
 
 #include "stdio.h"
@@ -75,7 +76,7 @@ protected:
     mach_timebase_info_data_t info;
     uint64_t machStartTime; //nanos
 	#elif defined(TARGET_LINUX)
-	//TODO:
+    struct timespec startTime;
 	#endif
     
 };

@@ -64,16 +64,24 @@ ofxMSATimer::ofxMSATimer(){
 	getMicrosSinceLastCall();
 }
 
-int64_t timespecDiff(struct timespec *timeA_p, struct timespec *timeB_p)
+timespec diff(timespec& start, timespec& end)
 {
-  return ((timeA_p->tv_sec * 1000000000) + timeA_p->tv_nsec) -
-           ((timeB_p->tv_sec * 1000000000) + timeB_p->tv_nsec);
+	timespec temp;
+	if ((end.tv_nsec-start.tv_nsec)<0) {
+		temp.tv_sec = end.tv_sec-start.tv_sec-1;
+		temp.tv_nsec = 1000000000+end.tv_nsec-start.tv_nsec;
+	} else {
+		temp.tv_sec = end.tv_sec-start.tv_sec;
+		temp.tv_nsec = end.tv_nsec-start.tv_nsec;
+	}
+	return temp;
 }
 
 uint64_t ofxMSATimer::getAppTimeMicros(){
 	timespec time;
 	clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &time);
-	return timespecDiff(&time, &startTime) / 100;
+	timespec diffTime = diff(startTime, time);
+	return (diffTime.tv_sec * 1000000 + diffTime.tv_nsec / 1000.)*100;
 }
 
 #endif

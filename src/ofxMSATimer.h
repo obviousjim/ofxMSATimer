@@ -1,5 +1,5 @@
 /***********************************************************************
- 
+
  Copyright (c) 2008, 2009, Memo Akten, www.memo.tv
  * Adapted for Windows by Juan Pablo Manson
  * Cross platform architecture and convenience fucntions by James George
@@ -34,8 +34,10 @@
 #include "ofMain.h"
 
 #if defined(TARGET_WIN32)
-	#define NOMINMAX
-	#include <windows.h>
+    #if not defined(NOMINMAX)
+        #define NOMINMAX
+    #endif
+    #include <windows.h>
 #elif defined(TARGET_OSX)
 	#include <sys/time.h>
 	#include <mach/mach_time.h>
@@ -50,25 +52,25 @@
 class ofxMSATimer {
   public:
     ofxMSATimer();
-    
+
 	float getAppTimeSeconds();
 	uint32_t getAppTimeMillis();
 	uint64_t getAppTimeMicros();
-    
+
 	void setStartTime();
 	float getElapsedSeconds();
 	uint32_t getElapsedMillis();
 	uint64_t getElapsedMicros();
-	
+
 	float getSecondsSinceLastCall();
 	uint32_t getMillisSinceLastCall();
 	uint64_t getMicrosSinceLastCall();
-	
+
 protected:
-    
+
 	uint64_t timerStartTimeMicros;
     uint64_t lastCallTimeMicros;
-    
+
 	#if defined(TARGET_WIN32)
     LARGE_INTEGER ticksPerSecond;
     LARGE_INTEGER startTime, stopTime;
@@ -79,6 +81,6 @@ protected:
     struct timespec startTime;
     struct timespec tmpTime;
 	#endif
-    
+
 };
 
